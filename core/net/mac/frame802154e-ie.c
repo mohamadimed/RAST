@@ -211,9 +211,9 @@ frame80215e_create_ie_mlme(uint8_t *buf, int len,
 int
 frame80215e_create_ie_tsch_synchronization(uint8_t *buf, int len,
     struct ieee802154_ies *ies)
-{
+{ 
   int ie_len = 6;
-  if(len >= 2 + ie_len && ies != NULL) {
+  if(len >= 2 + ie_len && ies != NULL) {//PRINTF("IAMHERE\n"); ok
     buf[2] = ies->ie_asn.ls4b;
     buf[3] = ies->ie_asn.ls4b >> 8;
     buf[4] = ies->ie_asn.ls4b >> 16;
@@ -232,7 +232,7 @@ int
 frame80215e_create_ie_tsch_slotframe_and_link(uint8_t *buf, int len,
     struct ieee802154_ies *ies)
 {
-  if(ies != NULL) {
+  if(ies != NULL) {  //ok
     int i;
     int num_slotframes = ies->ie_tsch_slotframe_and_link.num_slotframes;
     int num_links = ies->ie_tsch_slotframe_and_link.num_links;
@@ -243,9 +243,9 @@ frame80215e_create_ie_tsch_slotframe_and_link(uint8_t *buf, int len,
       return -1;
     }
     /* Insert IE */
-    buf[2] = num_slotframes;
+    buf[2] = num_slotframes; //PRINTF("NUM SLOTFRAME %u\n",num_slotframes); == 0  to work must add #define TSCH_PACKET_EB_WITH_SLOTFRAME_AND_LINK
     /* Insert slotframe */
-    if(num_slotframes == 1) {
+    if(num_slotframes == 1) { //not ok
       buf[2 + 1] = ies->ie_tsch_slotframe_and_link.slotframe_handle;
       WRITE16(buf + 2 + 2, ies->ie_tsch_slotframe_and_link.slotframe_size);
       buf[2 + 4] = num_links;
@@ -275,7 +275,7 @@ frame80215e_create_ie_tsch_timeslot(uint8_t *buf, int len,
   }
   /* Only ID if ID == 0, else full timing description */
   ie_len = ies->ie_tsch_timeslot_id == 0 ? 1 : 25;
-  if(len >= 2 + ie_len) {
+  if(len >= 2 + ie_len) { 
     buf[2] = ies->ie_tsch_timeslot_id;
     if(ies->ie_tsch_timeslot_id != 0) {
       int i;
@@ -301,15 +301,17 @@ frame80215e_create_ie_tsch_channel_hopping_sequence(uint8_t *buf, int len,
   }
   ie_len = ies->ie_channel_hopping_sequence_id == 0 ? 1 : 12 + ies->ie_hopping_sequence_len;
   if(len >= 2 + ie_len && ies != NULL) {
-    buf[2] = ies->ie_channel_hopping_sequence_id;
-    buf[3] = 0; /* channel page */
+    buf[2] = ies->ie_channel_hopping_sequence_id;  
+/**********************************************************************************************************************************************************************/
+    buf[3] = ies->ie_time_to_wake_up;//0; /* channel page */  //I HAVE USED THIS FIELD TO SEND TIME OF NEXT WAKTE TO RECEIVE EBR, to not create a IE RZ TIME
+/**********************************************************************************************************************************************************************/
     WRITE16(buf + 4, 0); /* number of channels */
     WRITE16(buf + 6, 0); /* phy configuration */
     WRITE16(buf + 8, 0);
     /* Extended bitmap. Size: 0 */
     WRITE16(buf + 10, ies->ie_hopping_sequence_len); /* sequence len */
     memcpy(buf + 12, ies->ie_hopping_sequence_list, ies->ie_hopping_sequence_len); /* sequence list */
-    WRITE16(buf + 12 + ies->ie_hopping_sequence_len, 0); /* current hop */
+    WRITE16(buf + 12 + ies->ie_hopping_sequence_len, 0); /* current hop */ 
     create_mlme_long_ie_descriptor(buf, MLME_LONG_IE_TSCH_CHANNEL_HOPPING_SEQUENCE, ie_len);
     return 2 + ie_len;
   } else {
@@ -337,11 +339,21 @@ frame802154e_parse_header_ie(const uint8_t *buf, int len,
           /* First extract NACK */
           ies->ie_is_nack = (time_sync_field & (uint16_t)0x8000) ? 1 : 0;
           /* Then cast from 12 to 16 bit signed */
-          if(time_sync_field & 0x0800) { /* Negative integer */
+       /*   if(time_sync_field & 0x0800) { // Negative integer
             drift_us = time_sync_field | 0xf000;
-          } else { /* Positive integer */
+          } else { // Positive integer 
             drift_us = time_sync_field & 0x0fff;
-          }
+          }*/
+
+/*****************************************************************/
+
+  
+            drift_us = time_sync_field & 0x0fff;
+         
+
+/***************************************************************/
+
+
           /* Convert to RTIMER ticks */
           ies->ie_time_correction = drift_us;
         }
@@ -424,7 +436,10 @@ frame802154e_parse_mlme_long_ie(const uint8_t *buf, int len,
     case MLME_LONG_IE_TSCH_CHANNEL_HOPPING_SEQUENCE:
       if(len > 0) {
         if(ies != NULL) {
-          ies->ie_channel_hopping_sequence_id = buf[0];
+          ies->ie_channel_hopping_sequence_id = buf[0]; 
+/*********************************************************************************************************/
+	   ies->ie_time_to_wake_up = buf[1];      // GETTING TIME TO WAKE UP FROM BUFFER, used this ies here to not creat an ie_rendezvous_header
+/*********************************************************************************************************/
           if(len > 1) {
             READ16(buf+8, ies->ie_hopping_sequence_len); /* sequence len */
             if(ies->ie_hopping_sequence_len <= sizeof(ies->ie_hopping_sequence_list)
@@ -444,7 +459,7 @@ frame802154e_parse_mlme_long_ie(const uint8_t *buf, int len,
 int
 frame802154e_parse_information_elements(const uint8_t *buf, uint8_t buf_size,
     struct ieee802154_ies *ies)
-{
+{//printf("ok\n");
   const uint8_t *start = buf;
   uint16_t ie_desc;
   uint8_t type;

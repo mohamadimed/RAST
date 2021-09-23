@@ -64,7 +64,7 @@ static uint8_t initialized = 0;
 
 /*---------------------------------------------------------------------------*/
 static int
-create_frame(int type, int do_create)
+create_frame(int type, int do_create) ////Creation of the frame, fill informations in fields then call frame802154_create() from frame802154.c
 {
   frame802154_t params;
   int hdr_len;
@@ -80,7 +80,7 @@ create_frame(int type, int do_create)
     initialized = 1;
     mac_dsn = random_rand() & 0xff;
   }
-
+//printf("IAM\n");
   /* Build the FCF. */
   params.fcf.frame_type = packetbuf_attr(PACKETBUF_ATTR_FRAME_TYPE);
   params.fcf.frame_pending = packetbuf_attr(PACKETBUF_ATTR_PENDING);
@@ -213,7 +213,7 @@ parse(void)
 {
   frame802154_t frame;
   int hdr_len;
-
+//printf("IAMHERE\n");
   hdr_len = frame802154_parse(packetbuf_dataptr(), packetbuf_datalen(), &frame);
 
   if(hdr_len && packetbuf_hdrreduce(hdr_len)) {

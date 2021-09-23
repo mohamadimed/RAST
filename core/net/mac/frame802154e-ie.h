@@ -60,7 +60,7 @@ struct tsch_slotframe_and_links {
   struct tsch_slotframe_and_links_link links[FRAME802154E_IE_MAX_LINKS];
 };
 
-/* The information elements that we currently support */
+/* The information elements that we currently support */ //*********************************************************************//
 struct ieee802154_ies {
   /* Header IEs */
   int16_t ie_time_correction;
@@ -73,13 +73,16 @@ struct ieee802154_ies {
   struct tsch_asn_t ie_asn;
   uint8_t ie_join_priority;
   uint8_t ie_tsch_timeslot_id;
-  uint16_t ie_tsch_timeslot[tsch_ts_elements_count];
+  uint16_t ie_tsch_timeslot[tsch_ts_elements_count]; //tsch_ts_elemts_count=12
   struct tsch_slotframe_and_links ie_tsch_slotframe_and_link;
   /* Payload Long MLME IEs */
   uint8_t ie_channel_hopping_sequence_id;
   /* We include and parse only the sequence len and list and omit unused fields */
   uint16_t ie_hopping_sequence_len;
   uint8_t ie_hopping_sequence_list[TSCH_HOPPING_SEQUENCE_MAX_LEN];
+/*******************************************************************/
+  uint8_t ie_time_to_wake_up; //comme c un seul octet (value 255 max) donc on envoie la duré divisé par 100
+
 };
 
 /** Insert various Information Elements **/

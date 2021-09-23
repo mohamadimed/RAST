@@ -205,7 +205,7 @@ frame802154_has_panid(frame802154_fcf_t *fcf, int *has_src_pan_id, int *has_dest
 int
 frame802154_check_dest_panid(frame802154_t *frame)
 {
-  int has_dest_panid = 0;
+  int has_dest_panid;
 
   if(frame == NULL) {
     return 0;
@@ -365,7 +365,8 @@ frame802154_hdrlen(frame802154_t *p)
 void
 frame802154_create_fcf(frame802154_fcf_t *fcf, uint8_t *buf)
 {
-  buf[0] = (fcf->frame_type & 7) |
+
+ buf[0] = (fcf->frame_type & 7) |
     ((fcf->security_enabled & 1) << 3) |
     ((fcf->frame_pending & 1) << 4) |
     ((fcf->ack_required & 1) << 5) |
@@ -402,7 +403,7 @@ frame802154_create(frame802154_t *p, uint8_t *buf)
 
   /* OK, now we have field lengths.  Time to actually construct */
   /* the outgoing frame, and store it in buf */
-  frame802154_create_fcf(&p->fcf, buf);
+  frame802154_create_fcf(&p->fcf, buf); 
   pos = 2;
 
   /* Sequence number */
@@ -469,7 +470,7 @@ void
 frame802154_parse_fcf(uint8_t *data, frame802154_fcf_t *pfcf)
 {
   frame802154_fcf_t fcf;
-
+//printf("H\n");
   /* decode the FCF */
   fcf.frame_type = data[0] & 7;
   fcf.security_enabled = (data[0] >> 3) & 1;
@@ -478,7 +479,7 @@ frame802154_parse_fcf(uint8_t *data, frame802154_fcf_t *pfcf)
   fcf.panid_compression = (data[0] >> 6) & 1;
 
   fcf.sequence_number_suppression = data[1] & 1;
-  fcf.ie_list_present = (data[1] >> 1) & 1;
+  fcf.ie_list_present = (data[1] >> 1) & 1; //printf("IE%u\n",fcf.ie_list_present);
   fcf.dest_addr_mode = (data[1] >> 2) & 3;
   fcf.frame_version = (data[1] >> 4) & 3;
   fcf.src_addr_mode = (data[1] >> 6) & 3;
@@ -515,7 +516,7 @@ frame802154_parse(uint8_t *data, int len, frame802154_t *pf)
   p = data;
 
   /* decode the FCF */
-  frame802154_parse_fcf(p, &fcf);
+  frame802154_parse_fcf(p, &fcf);											//printf("ok\n");
   memcpy(&pf->fcf, &fcf, sizeof(frame802154_fcf_t));
   p += 2;                             /* Skip first two bytes */
 
