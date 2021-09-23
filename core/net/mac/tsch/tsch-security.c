@@ -212,6 +212,7 @@ tsch_security_parse_frame(const uint8_t *hdr, int hdrlen, int datalen,
   uint8_t a_len;
   uint8_t m_len;
 
+
   if(frame == NULL || hdr == NULL || hdrlen < 0 || datalen < 0) {
     return 0;
   }

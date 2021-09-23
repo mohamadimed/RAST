@@ -42,6 +42,17 @@
 #include "net/mac/tsch/tsch-slot-operation.h"
 #include "net/linkaddr.h"
 
+
+/*======================================================================================================*/
+/* The hash function used to assign timeslot to a given node (based on its link-layer address) */
+#ifdef TSCH_CONF_LINKADDR_HASH
+#define TSCH_LINKADDR_HASH                   TSCH_CONF_LINKADDR_HASH
+#else /* TSCH_CONF_LINKADDR_HASH */
+#define TSCH_LINKADDR_HASH(addr)             ((addr != NULL) ? (addr)->u8[LINKADDR_SIZE - 1] : -1)
+#endif /* TSCH_CONF_LINKADDR_HASH */
+/*======================================================================================================*/
+
+
 /******** Configuration *******/
 
 /* Initializes TSCH with a 6TiSCH minimal schedule */
@@ -133,6 +144,7 @@ void tsch_schedule_create_minimal(void);
 /* Prints out the current schedule (all slotframes and links) */
 void tsch_schedule_print(void);
 
+
 /* Adds and returns a slotframe (NULL if failure) */
 struct tsch_slotframe *tsch_schedule_add_slotframe(uint16_t handle, uint16_t size);
 /* Looks for a slotframe from a handle */
@@ -148,6 +160,14 @@ struct tsch_slotframe *tsch_schedule_slotframes_next(struct tsch_slotframe *sf);
 struct tsch_link *tsch_schedule_add_link(struct tsch_slotframe *slotframe,
                                          uint8_t link_options, enum link_type link_type, const linkaddr_t *address,
                                          uint16_t timeslot, uint16_t channel_offset);
+
+/********************************************************************************************************************/
+
+struct tsch_link *tsch_schedule_add_my_link(struct tsch_slotframe *slotframe,
+                                         uint8_t link_options, enum link_type link_type, const linkaddr_t *address,
+                                         uint16_t timeslot, uint16_t channel_offset);
+
+/********************************************************************************************************************/
 /* Looks for a link from a handle */
 struct tsch_link *tsch_schedule_get_link_by_handle(uint16_t handle);
 /* Looks within a slotframe for a link with a given timeslot */
@@ -160,5 +180,8 @@ int tsch_schedule_remove_link_by_timeslot(struct tsch_slotframe *slotframe, uint
 /* Returns the next active link after a given ASN, and a backup link (for the same ASN, with Rx flag) */
 struct tsch_link * tsch_schedule_get_next_active_link(struct tsch_asn_t *asn, uint16_t *time_offset,
     struct tsch_link **backup_link);
+
+/*Add a new tomporarry link whene we receive */
+uint8_t tsch_schedule_add_new_links(struct tsch_slotframe * sf_min);
 
 #endif /* __TSCH_SCHEDULE_H__ */

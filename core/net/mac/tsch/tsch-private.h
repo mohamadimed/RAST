@@ -93,6 +93,9 @@ extern rtimer_clock_t tsch_timing[tsch_ts_elements_count];
 PROCESS_NAME(tsch_process);
 PROCESS_NAME(tsch_send_eb_process);
 PROCESS_NAME(tsch_pending_events_process);
+/***********************************************/
+PROCESS_NAME(tsch_send_eb_asap_process);
+PROCESS_NAME(tsch_remove_link_process);
 
 /********** Functions *********/
 

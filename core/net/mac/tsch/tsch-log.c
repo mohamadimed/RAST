@@ -91,7 +91,7 @@ tsch_log_process_pending(void)
       printf("TSCH: {asn-%x.%lx link-%u-%u-%u-%u ch-%u} ",
              log->asn.ms1b, log->asn.ls4b,
              log->link->slotframe_handle, sf ? sf->size.val : 0, log->link->timeslot, log->link->channel_offset,
-             tsch_calculate_channel(&log->asn, log->link->channel_offset));
+             tsch_calculate_channel(&log->asn, log->link->channel_offset));			/*****PRINTF THE CHANNEL USED FOR COMMUNICATION*****/ //defined in tsch-slot-operation.c
     }
     switch(log->type) {
       case tsch_log_tx:

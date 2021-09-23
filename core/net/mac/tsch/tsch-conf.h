@@ -48,25 +48,27 @@
 
 /* Default IEEE 802.15.4e hopping sequences, obtained from https://gist.github.com/twatteyne/2e22ee3c1a802b685695 */
 /* 16 channels, sequence length 16 */
-#define TSCH_HOPPING_SEQUENCE_16_16 (uint8_t[]){ 16, 17, 23, 18, 26, 15, 25, 22, 19, 11, 12, 13, 24, 14, 20, 21 }
+#define TSCH_HOPPING_SEQUENCE_16 (uint8_t[]){ 16, 17, 23, 18, 26, 15, 25, 22, 19, 11, 12, 13, 24, 14, 20, 21 }
 /* 4 channels, sequence length 16 */
-#define TSCH_HOPPING_SEQUENCE_4_16 (uint8_t[]){ 20, 26, 25, 26, 15, 15, 25, 20, 26, 15, 26, 25, 20, 15, 20, 25 }
+#define TSCH_HOPPING_SEQUENCE_12 (uint8_t[]){ 16, 17, 23, 26, 15, 25, 22, 19, 11, 14, 20, 21  }
+/* 8 channels, sequence length 8 */
+#define TSCH_HOPPING_SEQUENCE_8 (uint8_t[]){ 11,23, 17, 26, 19, 15, 20, 25}
 /* 4 channels, sequence length 4 */
-#define TSCH_HOPPING_SEQUENCE_4_4 (uint8_t[]){ 15, 25, 26, 20 }
+#define TSCH_HOPPING_SEQUENCE_4 (uint8_t[]){ 15, 25, 26, 20 }
 /* 2 channels, sequence length 2 */
-#define TSCH_HOPPING_SEQUENCE_2_2 (uint8_t[]){ 20, 25 }
+#define TSCH_HOPPING_SEQUENCE_2 (uint8_t[]){ 20, 25 }
 /* 1 channel, sequence length 1 */
-#define TSCH_HOPPING_SEQUENCE_1_1 (uint8_t[]){ 20 }
+#define TSCH_HOPPING_SEQUENCE_1 (uint8_t[]){ 20 }
 
 /* Default hopping sequence, used in case hopping sequence ID == 0 */
 #ifdef TSCH_CONF_DEFAULT_HOPPING_SEQUENCE
 #define TSCH_DEFAULT_HOPPING_SEQUENCE TSCH_CONF_DEFAULT_HOPPING_SEQUENCE
 #else
-#define TSCH_DEFAULT_HOPPING_SEQUENCE TSCH_HOPPING_SEQUENCE_4_4
+#define TSCH_DEFAULT_HOPPING_SEQUENCE TSCH_HOPPING_SEQUENCE_8
 #endif
 
 /* Hopping sequence used for joining (scan channels) */
-#ifdef TSCH_CONF_JOIN_HOPPING_SEQUENCE
+#ifdef TSCH_CONF_JOIN_HOPPING_SEQUENCE 
 #define TSCH_JOIN_HOPPING_SEQUENCE TSCH_CONF_JOIN_HOPPING_SEQUENCE
 #else
 #define TSCH_JOIN_HOPPING_SEQUENCE TSCH_DEFAULT_HOPPING_SEQUENCE
@@ -80,10 +82,14 @@
 #define TSCH_HOPPING_SEQUENCE_MAX_LEN 16
 #endif
 
+
+
+#define TSCH_HOPPING_SEQUENCE_LENGTH ((sizeof(TSCH_DEFAULT_HOPPING_SEQUENCE)/sizeof(0[TSCH_DEFAULT_HOPPING_SEQUENCE])) / ((size_t)(!(sizeof(TSCH_DEFAULT_HOPPING_SEQUENCE) % sizeof(0[TSCH_DEFAULT_HOPPING_SEQUENCE])))))
+
 /* Timeslot timing */
 
 #ifndef TSCH_CONF_DEFAULT_TIMESLOT_LENGTH
-#define TSCH_CONF_DEFAULT_TIMESLOT_LENGTH 10000
+#define TSCH_CONF_DEFAULT_TIMESLOT_LENGTH 10000  /***********************************************************/
 #endif /* TSCH_CONF_DEFAULT_TIMESLOT_LENGTH */
 
 /* Configurable Rx guard time is micro-seconds */

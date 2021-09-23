@@ -77,6 +77,8 @@ LIST(neighbor_list);
 struct tsch_neighbor *n_broadcast;
 struct tsch_neighbor *n_eb;
 
+
+
 /*---------------------------------------------------------------------------*/
 /* Add a TSCH neighbor */
 struct tsch_neighbor *
@@ -85,6 +87,7 @@ tsch_queue_add_nbr(const linkaddr_t *addr)
   struct tsch_neighbor *n = NULL;
   /* If we have an entry for this neighbor already, we simply update it */
   n = tsch_queue_get_nbr(addr);
+
   if(n == NULL) {
     if(tsch_get_lock()) {
       /* Allocate a neighbor */
@@ -177,7 +180,9 @@ tsch_queue_update_time_source(const linkaddr_t *new_addr)
         }
 
 #ifdef TSCH_CALLBACK_NEW_TIME_SOURCE
+//printf("CALLBACK TIME SOURCE \n");
         TSCH_CALLBACK_NEW_TIME_SOURCE(old_time_src, new_time_src);
+
 #endif
       }
 
@@ -196,13 +201,13 @@ tsch_queue_flush_nbr_queue(struct tsch_neighbor *n)
     if(p != NULL) {
       /* Set return status for packet_sent callback */
       p->ret = MAC_TX_ERR;
-      PRINTF("TSCH-queue:! flushing packet\n");
+     // PRINTF("TSCH-queue:! flushing packet\n");
       /* Call packet_sent callback */
       mac_call_sent_callback(p->sent, p->ptr, p->ret, p->transmissions);
       /* Free packet queuebuf */
       tsch_queue_free_packet(p);
     }
-    PRINTF("TSCH-queue: packet is deleted packet=%p\n", p);
+    //PRINTF("TSCH-queue: packet is deleted packet=%p\n", p);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -231,6 +236,7 @@ tsch_queue_remove_nbr(struct tsch_neighbor *n)
 struct tsch_packet *
 tsch_queue_add_packet(const linkaddr_t *addr, mac_callback_t sent, void *ptr)
 {
+  
   struct tsch_neighbor *n = NULL;
   int16_t put_index = -1;
   struct tsch_packet *p = NULL;
@@ -245,6 +251,7 @@ tsch_queue_add_packet(const linkaddr_t *addr, mac_callback_t sent, void *ptr)
 #ifdef TSCH_CALLBACK_PACKET_READY
           TSCH_CALLBACK_PACKET_READY();
 #endif
+
           p->qb = queuebuf_new_from_packetbuf();
           if(p->qb != NULL) {
             p->sent = sent;
@@ -254,8 +261,8 @@ tsch_queue_add_packet(const linkaddr_t *addr, mac_callback_t sent, void *ptr)
             /* Add to ringbuf (actual add committed through atomic operation) */
             n->tx_array[put_index] = p;
             ringbufindex_put(&n->tx_ringbuf);
-            PRINTF("TSCH-queue: packet is added put_index=%u, packet=%p\n",
-                   put_index, p);
+            //PRINTF("TSCH-queue: packet is added put_index=%u, packet=%p\n",
+              //    put_index, p);
             return p;
           } else {
             memb_free(&packet_memb, p);
@@ -265,9 +272,50 @@ tsch_queue_add_packet(const linkaddr_t *addr, mac_callback_t sent, void *ptr)
     }
   }
   PRINTF("TSCH-queue:! add packet failed: %u %p %d %p %p\n", tsch_is_locked(), n, put_index, p, p ? p->qb : NULL);
+ 
+  return 0;
+}
+/*---------------------------------------------------------------------------*//*---------------------------------------------------------------------------*/
+/* Add packet to queuebuf from packetbuf. Use same lockfree implementation as ringbuf.c (put is atomic) */
+struct tsch_packet *
+tsch_queue_add_packet_EBR(const linkaddr_t *addr, mac_callback_t sent, void *ptr)
+{
+
+  
+  struct tsch_packet *p = NULL;
+  if(!tsch_is_locked()) { 
+  
+
+        p = memb_alloc(&packet_memb);
+
+        if(p != NULL) {
+          /* Enqueue packet */
+#ifdef TSCH_CALLBACK_PACKET_READY
+          TSCH_CALLBACK_PACKET_READY();
+#endif
+
+          p->qb = queuebuf_new_from_packetbuf();
+          if(p->qb != NULL) {
+            p->sent = sent;
+            p->ptr = ptr;
+            p->ret = MAC_TX_DEFERRED;
+            p->transmissions = 0;
+         
+            //PRINTF("QUEUED IN QUEUEBUF, packet=%p\n",p);
+
+            return p;
+          } else {
+            memb_free(&packet_memb, p);
+          
+        }
+      }
+    
+  }
+  PRINTF("Failed To Put in QUEUEBUF: %u   %p %p\n", tsch_is_locked(),   p, p ? p->qb : NULL);
   return 0;
 }
 /*---------------------------------------------------------------------------*/
+
 /* Returns the number of packets currently in the queue */
 int
 tsch_queue_packet_count(const linkaddr_t *addr)
@@ -291,6 +339,7 @@ tsch_queue_remove_packet_from_queue(struct tsch_neighbor *n)
       /* Get and remove packet from ringbuf (remove committed through an atomic operation */
       int16_t get_index = ringbufindex_get(&n->tx_ringbuf);
       if(get_index != -1) {
+
         PRINTF("TSCH-queue: packet is removed, get_index=%u\n", get_index);
         return n->tx_array[get_index];
       } else {
@@ -300,6 +349,8 @@ tsch_queue_remove_packet_from_queue(struct tsch_neighbor *n)
   }
   return NULL;
 }
+/*---------------------------------------------------------------------------*/
+
 /*---------------------------------------------------------------------------*/
 /* Free a packet */
 void
@@ -477,5 +528,6 @@ tsch_queue_init(void)
   /* Add virtual EB and the broadcast neighbors */
   n_eb = tsch_queue_add_nbr(&tsch_eb_address);
   n_broadcast = tsch_queue_add_nbr(&tsch_broadcast_address);
+  
 }
 /*---------------------------------------------------------------------------*/

@@ -102,4 +102,16 @@ int tsch_packet_parse_eb(const uint8_t *buf, int buf_size,
     frame802154_t *frame, struct ieee802154_ies *ies,
     uint8_t *hdrlen, int frame_without_mic);
 
+/*****************************************/
+/* Create an EBR packet */						
+int tsch_packet_create_ebr(uint8_t *buf, int buf_size,uint8_t *hdr_len, uint8_t *tsch_sync_ie_offset,uint8_t ie_scan_channel);
+int
+tsch_packet_parse_ebr(const uint8_t *buf, int buf_size,frame802154_t *frame, struct ieee802154_ies *ies, uint8_t *hdr_len, int frame_without_mic);
+
+int tsch_packet_create_my_eack(uint8_t *buf, int buf_size,const linkaddr_t *dest_addr, uint8_t seqno, int16_t drift, int nack);
+
+int tsch_packet_parse_my_eack(const uint8_t *buf, int buf_size,uint8_t seqno, frame802154_t *frame, struct ieee802154_ies *ies, uint8_t *hdr_len);
+
+
+/*****************************************/
 #endif /* __TSCH_PACKET_H__ */

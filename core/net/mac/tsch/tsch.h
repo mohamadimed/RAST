@@ -41,6 +41,11 @@
 
 /******** Configuration *******/
 
+
+
+#undef WAKE_UP_TIMER 
+#define WAKE_UP_TIMER 21//21 //For a good funtion, should be bigger than SF length in rtimer_clock so >21
+
 /* Max time before sending a unicast keep-alive message to the time source */
 #ifdef TSCH_CONF_KEEPALIVE_TIMEOUT
 #define TSCH_KEEPALIVE_TIMEOUT TSCH_CONF_KEEPALIVE_TIMEOUT
@@ -68,7 +73,7 @@
 #ifdef TSCH_CONF_EB_PERIOD
 #define TSCH_EB_PERIOD TSCH_CONF_EB_PERIOD
 #else
-#define TSCH_EB_PERIOD (16 * CLOCK_SECOND)
+#define TSCH_EB_PERIOD (16 * CLOCK_SECOND)  //16
 #endif
 
 /* Max Period between two consecutive EBs */
@@ -82,7 +87,7 @@
 #ifdef TSCH_CONF_MAX_JOIN_PRIORITY
 #define TSCH_MAX_JOIN_PRIORITY TSCH_CONF_MAX_JOIN_PRIORITY
 #else
-#define TSCH_MAX_JOIN_PRIORITY 32
+#define TSCH_MAX_JOIN_PRIORITY 64
 #endif
 
 /* Start TSCH automatically after init? If not, the upper layers
@@ -102,6 +107,8 @@
 /* By default, set if LLSEC802154_ENABLED is also non-zero */
 #define TSCH_JOIN_SECURED_ONLY LLSEC802154_ENABLED
 #endif
+
+
 
 /* By default, join any PAN ID. Otherwise, wait for an EB from IEEE802154_PANID */
 #ifdef TSCH_CONF_JOIN_MY_PANID_ONLY
@@ -168,6 +175,25 @@ extern int tsch_is_pan_secured;
 /* The TSCH MAC driver */
 extern const struct mac_driver tschmac_driver;
 
+/*------------------------------*/
+/* Have we received and EB request? */
+extern volatile uint8_t is_ebr_received;
+/* Have we answered to the EB request? */
+extern uint8_t is_ebr_answered;
+/* Channel in wich we received an EBR*/
+extern uint8_t reception_channel;
+/* We save the EBR reception time*/
+extern rtimer_clock_t reception_timer; 
+/* We save the EBR Strob start time*/
+extern rtimer_clock_t start_timer; 
+/* We have received ack when sending EBR*/
+extern uint8_t is_ack_received;
+/* Get time to wakeup from ack recevied after sendir EBR */
+extern uint16_t time_to_wakeup;
+/* Know if we have passed the 's' first cycles*/
+extern uint8_t first_cycles_elapsed;
+/*------------------------------*/
+
 /********** Functions *********/
 
 /* The the TSCH join priority */
@@ -180,5 +206,9 @@ void tsch_set_ka_timeout(uint32_t timeout);
 void tsch_set_coordinator(int enable);
 /* Set the pan as secured or not */
 void tsch_set_pan_secured(int enable);
-
+/*-----------------------*/
+/* SEND EB ASAP */
+void send_eb_asap();
+//void enqueue_eb();
+/*-----------------------*/
 #endif /* __TSCH_H__ */

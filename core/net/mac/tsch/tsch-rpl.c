@@ -86,6 +86,7 @@ tsch_rpl_callback_new_dio_interval(uint8_t dio_interval)
     }
     /* Set EB period */
     tsch_set_eb_period((CLOCK_SECOND * 1UL << dag->instance->dio_intcurrent) / 1000);
+											// tsch_set_eb_period((CLOCK_SECOND * 60);
     /* Set join priority based on RPL rank */
     tsch_set_join_priority(DAG_RANK(dag->rank, dag->instance) - 1);
   } else {
@@ -98,7 +99,7 @@ tsch_rpl_callback_new_dio_interval(uint8_t dio_interval)
 void
 tsch_rpl_callback_parent_switch(rpl_parent_t *old, rpl_parent_t *new)
 {
-  if(tsch_is_associated == 1) {
+  if(tsch_is_associated == 1) { //  PRINTF("IAMHERE");
     tsch_queue_update_time_source(
       (const linkaddr_t *)uip_ds6_nbr_lladdr_from_ipaddr(
         rpl_get_parent_ipaddr(new)));
