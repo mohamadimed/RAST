@@ -5,7 +5,7 @@ RAST implementation - ReadMe
 
 RAST is a practical and effective Radio duty-cycled, Active-Scan based network formation process for TSCH networks. It leans on active-scan procedures combined with radio duty cycling mechanisms to shorten joining delays and reduce energy consumption.
 
-This implementation is presented in depth and evaluated in our paper: xxxxxx.
+This implementation is presented in depth and evaluated in our paper: (upcoming).
 
 
 <h1> Features </h1>
@@ -22,7 +22,7 @@ This implementation includes:
   
 <h1> Code structure </h1>
 
-RASt with all its mechanisms is implemented in:
+RAST with all its mechanisms is implemented in:
 
 The IEEE 802.15.4e-2012 frame format is implemented in:
 
@@ -51,7 +51,7 @@ The IEEE 802.15.4e-2012 frame format is implemented in:
 </ul>
 
 
-<h1> Using RAST </h1>
+<h1> Using RAST (Run an example)</h1>
 
 A simple Active Network Formation example is included under RAST/examples/ipv6/NETWORK-FORMATION/Z1_49_node. To use TSCH, first make sure your platform supports it. Currently, Z1 and cooja are the supported platforms.
 
